@@ -1,0 +1,10 @@
+Dependencies for Project 'project_test', Target 'Target 1': (DO NOT MODIFY !)
+CompilerVersion: 6190000::V6.19::ARMCLANG
+F (.\main.c)(0x65053629)(-xc -std=c11 --target=arm-arm-none-eabi -mcpu=cortex-m3 -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-gdwarf-4 -O1 -ffunction-sections -Wno-packed -Wno-missing-variable-declarations -Wno-missing-prototypes -Wno-missing-noreturn -Wno-sign-conversion -Wno-nonportable-include-path -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier -I D:/install/Keil/Pack/ARM/CMSIS/5.9.0/CMSIS/Core/Include-ID:/install/Keil/Pack/Keil/STM32F1xx_DFP/2.4.1/Device/Include-D__UVISION_VERSION="538" -DSTM32F10X_MD-o ./objects/main.o -MD)
+I (D:\install\Keil\Pack\Keil\STM32F1xx_DFP\2.4.1\Device\Include\stm32f10x.h)(0x61AD795E)
+I (D:\install\Keil\Pack\ARM\CMSIS\5.9.0\CMSIS\Core\Include\core_cm3.h)(0x626F4ADE)
+I (D:\install\Keil\ARM\ARMCLANG\include\stdint.h)(0x63884908)
+I (D:\install\Keil\Pack\ARM\CMSIS\5.9.0\CMSIS\Core\Include\cmsis_version.h)(0x626F4ADE)
+I (D:\install\Keil\Pack\ARM\CMSIS\5.9.0\CMSIS\Core\Include\cmsis_compiler.h)(0x626F4ADE)
+I (D:\install\Keil\Pack\ARM\CMSIS\5.9.0\CMSIS\Core\Include\cmsis_armclang.h)(0x626F4ADE)
+I (D:\install\Keil\Pack\Keil\STM32F1xx_DFP\2.4.1\Device\Include\system_stm32f10x.h)(0x61AD795E)

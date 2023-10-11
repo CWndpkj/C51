@@ -1,0 +1,60 @@
+C51 COMPILER V9.60.7.0   PWM                                                               09/08/2023 23:50:03 PAGE 1   
+
+
+C51 COMPILER V9.60.7.0, COMPILATION OF MODULE PWM
+OBJECT MODULE PLACED IN .\Objects\PWM.obj
+COMPILER INVOKED BY: D:\install\Keil\C51\BIN\C51.EXE PWM.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.\Listings\
+                    -PWM.lst) TABS(2) OBJECT(.\Objects\PWM.obj)
+
+line level    source
+
+   1          #include <REGX52.H>
+   2          #include "PWM.h"
+   3          
+   4          unsigned int m_ratio;
+   5          unsigned char counter;
+   6          
+   7          void PWM_Init(unsigned int ratio)
+   8          {
+   9   1        m_ratio=ratio;
+  10   1        //对定时器进行初始化
+  11   1        //1微秒@11.0592MHz
+  12   1        TMOD &= 0xF0;     //设置定时器模式
+  13   1        TMOD |= 0x01;     //设置定时器模式
+  14   1        
+  15   1        //以下设定为该单片机定时初始值最大设置限度，超过此值，定时器中断时间错�
+             -��
+  16   1        TL0 = 0xFD;       //设置定时初始值
+  17   1        TH0 = 0xFF;       //设置定时初始值
+  18   1      
+  19   1        TF0 = 0;        //清除TF0标志
+  20   1        TR0 = 1;        //定时器0开始计时
+  21   1        ET0 = 1;        //使能定时器0中断
+  22   1        
+  23   1        EA=1;           //使能总中断
+  24   1      }
+  25          
+  26          void Timer0_Routine() interrupt 1
+  27          {
+  28   1        TL0 = 0xFD;       //设置定时初始值
+  29   1        TH0 = 0xFF;       //设置定时初始值
+  30   1        
+  31   1        counter++;
+  32   1      
+  33   1        port=!(counter>=m_ratio);
+  34   1      
+  35   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =     59    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =      3    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

@@ -1,0 +1,121 @@
+C51 COMPILER V9.60.7.0   MAIN                                                              09/18/2023 18:47:08 PAGE 1   
+
+
+C51 COMPILER V9.60.7.0, COMPILATION OF MODULE MAIN
+OBJECT MODULE PLACED IN .\Objects\main.obj
+COMPILER INVOKED BY: D:\install\Keil\C51\BIN\C51.EXE main.c OPTIMIZE(9,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.\Listings
+                    -\main.lst) OBJECT(.\Objects\main.obj)
+
+line level    source
+
+   1          //#include "Timer.h"
+   2          //#include "PWM.h"
+   3          //#include "key.h"
+   4          //#include "8bit_SMG.h"
+   5          //#include "IRC_Test.h"
+   6          //#include "LCD1602.h"
+   7          //#include "delay.h"
+   8          //#include <string.h>
+   9          //#include <REGX52.H>
+  10          
+  11          //void main()
+  12          //{
+  13          //      LCD_Init();
+  14          //      LCD_ShowString(1,1,"Addr    Command");  
+  15          //      while(1)
+  16          //      {
+  17          //              
+  18          //      }
+  19          //}
+  20          
+  21          /*******************************************************
+  22          ULN2003驱动5V减速步进电机程序
+  23          Target:STC89C52RC-40C
+  24          Crystal:12MHz
+  25          Author:战神单片机工作室
+  26          Platform:51&avr单片机最小系统板+ULN2003步进电机驱动套件
+  27          http://zsmcu.taobao.com   QQ:284083167
+  28          *******************************************************
+  29          接线方式:
+  30          IN1 ---- P00
+  31          IN2 ---- P01
+  32          IN3 ---- P02
+  33          IN4 ---- P03
+  34          +   ---- +5V
+  35          -   ---- GND
+  36          *********************/
+  37          #include<reg52.h>
+  38          #define uchar unsigned char
+  39          #define uint  unsigned int
+  40          #define MotorData P1                    //步进电机控制接口定义
+  41          uchar phasecw[4] ={0x08,0x04,0x02,0x01};//正转 电机导通相序 D-C-B-A
+  42          uchar phaseccw[4]={0x01,0x02,0x04,0x08};//反转 电机导通相序 A-B-C-D
+  43          //ms延时函数
+  44          void Delay_xms(uint x)
+  45          {
+  46   1       uint i,j;
+  47   1       for(i=0;i<x;i++)
+  48   1        for(j=0;j<112;j++);
+  49   1      }
+  50          //顺时针转动
+  51          void MotorCW(void)
+  52          {
+  53   1       uchar i;
+  54   1       for(i=0;i<4;i++)
+C51 COMPILER V9.60.7.0   MAIN                                                              09/18/2023 18:47:08 PAGE 2   
+
+  55   1        {
+  56   2         MotorData=phasecw[i];
+  57   2         Delay_xms(4);//转速调节
+  58   2        }
+  59   1      }
+  60          //逆时针转动
+  61          void MotorCCW(void)
+  62          {
+  63   1       uchar i;
+  64   1       for(i=0;i<4;i++)
+  65   1        {
+  66   2         MotorData=phaseccw[i];
+  67   2         Delay_xms(4);//转速调节
+  68   2        }
+  69   1      }
+  70          //停止转动
+  71          void MotorStop(void)
+  72          {
+  73   1       MotorData=0x00;
+  74   1      }
+  75          //主函数
+  76          void main(void)
+  77          {
+  78   1       uint i;
+  79   1       Delay_xms(50);//等待系统稳定
+  80   1       while(1)
+  81   1       {
+  82   2        for(i=0;i<500;i++)
+  83   2        {
+  84   3         MotorCW();   //顺时针转动
+  85   3        } 
+  86   2        MotorStop();  //停止转动
+  87   2        Delay_xms(500);
+  88   2        for(i=0;i<500;i++)
+  89   2        {
+  90   3         MotorCCW();  //逆时针转动
+  91   3        } 
+  92   2        MotorStop();  //停止转动
+  93   2        Delay_xms(500);  
+  94   2       }
+  95   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    130    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =      8    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

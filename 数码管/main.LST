@@ -1,0 +1,91 @@
+C51 COMPILER V9.60.7.0   MAIN                                                              07/25/2023 10:35:23 PAGE 1   
+
+
+C51 COMPILER V9.60.7.0, COMPILATION OF MODULE MAIN
+OBJECT MODULE PLACED IN main.OBJ
+COMPILER INVOKED BY: D:\install\Keil\C51\BIN\C51.EXE main.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND TABS(2)
+
+line level    source
+
+   1          #include <REGX52.H>
+   2          #include "LCD1602.h"
+   3          #include "8bit_SMG.h"
+   4          #include "delay.h"
+   5          #include "matrixkey.h"
+   6          typedef unsigned int u16; //对数据类型进行自定义
+   7          typedef unsigned char u8;
+   8          
+   9          //void main()
+  10          //{      
+  11          ////  u16 i=2000;
+  12          //  unsigned char ret=0;
+  13          //  //LCD_Init();
+  14          //  while(1)
+  15          //  {
+  16          ////    while(i--)//??2000?
+  17          ////  {
+  18          ////    LED=!LED;
+  19          ////    BEEP=!BEEP;//???????????
+  20          ////    delay(1);
+  21          ////  }
+  22          ////  i=0;//??
+  23          ////  BEEP=0;//?????
+  24          ////  LED=1;
+  25          ////    while(1)
+  26          ////    {
+  27          ////      SMG_display(0,0);
+  28          ////      SMG_display(1,1);
+  29          ////      SMG_display(2,2);
+  30          ////      SMG_display(3,3);
+  31          ////      SMG_display(4,4);
+  32          ////      
+  33          ////    }
+  34          //      //LCD_ShowString(1,1,"helloworld");
+  35          //    
+  36          //        ret=GetKey();
+  37          //        if(ret!=100){
+  38          //          SMG_display(1,ret/10);
+  39          //          SMG_display(2,ret%10);
+  40          //        }
+  41          //        else 
+  42          //          SMG_display(0,'F');
+  43          //  } 
+  44          //  
+  45          //  
+  46          //  
+  47          //}
+  48          
+  49          
+  50          
+  51          
+  52          #include <stdio.h>
+  53          void main(void)
+  54          {
+  55   1      SCON = 0x50; //串口方式 1,允许接收
+C51 COMPILER V9.60.7.0   MAIN                                                              07/25/2023 10:35:23 PAGE 2   
+
+  56   1      TMOD = 0x20; //定时器 1 定时方式 2
+  57   1      TCON = 0x40; //设定时器 1 开始计数
+  58   1      TH1 = 0xE8; //11.0592MHz 1200 波特率
+  59   1      TL1 = 0xE8;
+  60   1      TI = 1;
+  61   1      TR1 = 1; //启动定时器
+  62   1      while(1)
+  63   1      {
+  64   2      printf ("Hello World!\n"); //显示 Hello World
+  65   2      }
+  66   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =     30    ----
+   CONSTANT SIZE    =     14    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

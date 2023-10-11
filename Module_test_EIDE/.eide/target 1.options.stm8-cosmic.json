@@ -1,0 +1,21 @@
+{
+    "version": 1,
+    "beforeBuildTasks": [],
+    "afterBuildTasks": [],
+    "global": {
+        "model": "small",
+        "output-debug-info": "enable",
+        "output-list-file": true
+    },
+    "c/cpp-compiler": {
+        "c99-mode": true,
+        "optimization": "size",
+        "split-functions": true,
+        "warnings": "all"
+    },
+    "asm-compiler": {},
+    "linker": {
+        "output-format": "elf",
+        "auto-include-stdc-libraries": true
+    }
+}

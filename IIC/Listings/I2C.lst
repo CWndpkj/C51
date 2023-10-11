@@ -1,0 +1,391 @@
+C51 COMPILER V9.60.7.0   I2C                                                               09/19/2023 11:09:24 PAGE 1   
+
+
+C51 COMPILER V9.60.7.0, COMPILATION OF MODULE I2C
+OBJECT MODULE PLACED IN .\Objects\I2C.obj
+COMPILER INVOKED BY: D:\install\Keil\C51\BIN\C51.EXE I2C.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.\Listings\
+                    -I2C.lst) OBJECT(.\Objects\I2C.obj)
+
+line level    source
+
+   1          /************************************************************************************
+   2          *  Copyright (c), 2013, HelTec Automatic Technology co.,LTD.
+   3          *            All rights reserved.
+   4          *
+   5          * Http:    www.heltec.cn
+   6          * Email:   cn.heltec@gmail.com
+   7          * WebShop: heltec.taobao.com
+   8          *
+   9          * File name: LQ12864.h
+  10          * Project  : OLED
+  11          * Processor: STC89C52
+  12          * Compiler : Keil C51 Compiler
+  13          * 
+  14          * Author : 小林
+  15          * Version: 1.00
+  16          * Date   : 2013.8.8
+  17          * Email  : hello14blog@gmail.com
+  18          * Modification: none
+  19          * 
+  20          * Description:128*64点整OLED模块驱动文件，仅适用heltec.taobao.com所售产品
+  21          *
+  22          * Others: none;
+  23          *
+  24          * Function List:
+  25          *
+  26          * 1. void delay(unsigned int z) -- 延时函数,毫秒
+  27          * 2. void IIC_Start() -- 开启I2C总线
+  28          * 3. void IIC_Stop() -- 关闭I2C总线
+  29          * 4. void Write_IIC_Byte(unsigned char IIC_Byte) -- 通过I2C总线写一个byte的数据
+  30          * 5. void OLED_WrDat(unsigned char dat) -- 向OLED屏写数据
+  31          * 6. void OLED_WrCmd(unsigned char cmd) -- 向OLED屏写命令
+  32          * 7. void OLED_Set_Pos(unsigned char x, unsigned char y) -- 设置显示坐标
+  33          * 8. void OLED_Fill(unsigned char bmp_dat) -- 全屏显示(显示BMP图片时才会用到此功能)
+  34          * 9. void OLED_CLS(void) -- 复位/清屏
+  35          * 10. void OLED_Init(void) -- OLED屏初始化程序，此函数应在操作屏幕之前最先调用
+  36          * 11. void OLED_P6x8Str(unsigned char x, y,unsigned char ch[]) -- 6x8点整，用于显示ASCII码的最�
+             -�阵列，不太清晰
+  37          * 12. void OLED_P8x16Str(unsigned char x, y,unsigned char ch[]) -- 8x16点整，用于显示ASCII码，非
+             -常清晰
+  38          * 13.void OLED_P16x16Ch(unsigned char x, y, N) -- 16x16点整，用于显示汉字的最小阵列，可设
+             -置各种字体、加粗、倾斜、下划线等
+  39          * 14.void Draw_BMP(unsigned char x0, y0,x1, y1,unsigned char BMP[]) -- 将128x64像素的BMP位图在取�
+             -�软件中算出字表，然后复制到codetab中，此函数调用即可
+  40          *
+  41          * History: none;
+  42          *
+  43          *************************************************************************************/
+  44          
+  45          #include "reg52.h"
+  46          #include "Font.h"
+  47          
+  48          // ------------------------------------------------------------
+  49          // IO口模拟I2C通信
+  50          // SCL接P1^3
+C51 COMPILER V9.60.7.0   I2C                                                               09/19/2023 11:09:24 PAGE 2   
+
+  51          // SDA接P1^2
+  52          // ------------------------------------------------------------
+  53          sbit SCL=P2^1; //串行时钟
+  54          sbit SDA=P2^0; //串行数据
+  55          
+  56          #define high 1
+  57          #define low 0
+  58          
+  59          #define Brightness      0xCF 
+  60          #define X_WIDTH         128
+  61          #define Y_WIDTH         64
+  62          /*********************OLED驱动程序用的延时程序************************************/
+  63          void delay(unsigned int z)
+  64          {
+  65   1              unsigned int x,y;
+  66   1              for(x=z;x>0;x--)
+  67   1                      for(y=110;y>0;y--);
+  68   1      }
+  69          
+  70          /**********************************************
+  71          //IIC Start
+  72          **********************************************/
+  73          void IIC_Start()
+  74          {
+  75   1         SCL = high;          
+  76   1         SDA = high;
+  77   1         SDA = low;
+  78   1         SCL = low;
+  79   1      }
+  80          
+  81          /**********************************************
+  82          //IIC Stop
+  83          **********************************************/
+  84          void IIC_Stop()
+  85          {
+  86   1         SCL = low;
+  87   1         SDA = low;
+  88   1         SCL = high;
+  89   1         SDA = high;
+  90   1      }
+  91          
+  92          /**********************************************
+  93          // 通过I2C总线写一个字节
+  94          **********************************************/
+  95          void Write_IIC_Byte(unsigned char IIC_Byte)
+  96          {
+  97   1              unsigned char i;
+  98   1              for(i=0;i<8;i++)
+  99   1              {
+ 100   2                      if(IIC_Byte & 0x80)
+ 101   2                              SDA=high;
+ 102   2                      else
+ 103   2                              SDA=low;
+ 104   2                      SCL=high;
+ 105   2                      SCL=low;
+ 106   2                      IIC_Byte<<=1;
+ 107   2              }
+ 108   1              SDA=1;
+ 109   1              SCL=1;
+ 110   1              SCL=0;
+ 111   1      }
+ 112          
+C51 COMPILER V9.60.7.0   I2C                                                               09/19/2023 11:09:24 PAGE 3   
+
+ 113          /*********************OLED写数据************************************/ 
+ 114          void OLED_WrDat(unsigned char IIC_Data)
+ 115          {
+ 116   1              IIC_Start();
+ 117   1              Write_IIC_Byte(0x78);
+ 118   1              Write_IIC_Byte(0x40);                   //write data
+ 119   1              Write_IIC_Byte(IIC_Data);
+ 120   1              IIC_Stop();
+ 121   1      }
+ 122          /*********************OLED写命令************************************/
+ 123          void OLED_WrCmd(unsigned char IIC_Command)
+ 124          {
+ 125   1              IIC_Start();
+ 126   1              Write_IIC_Byte(0x78);            //Slave address,SA0=0
+ 127   1              Write_IIC_Byte(0x00);                   //write command
+ 128   1              Write_IIC_Byte(IIC_Command);
+ 129   1              IIC_Stop();
+ 130   1      }
+ 131          /*********************OLED 设置坐标************************************/
+ 132          void OLED_Set_Pos(unsigned char x, unsigned char y) 
+ 133          { 
+ 134   1              OLED_WrCmd(0xb0+y);
+ 135   1              OLED_WrCmd(((x&0xf0)>>4)|0x10);
+ 136   1              OLED_WrCmd((x&0x0f)|0x01);
+ 137   1      } 
+ 138          /*********************OLED全屏************************************/
+ 139          void OLED_Fill(unsigned char bmp_dat) 
+ 140          {
+ 141   1              unsigned char y,x;
+ 142   1              for(y=0;y<8;y++)
+ 143   1              {
+ 144   2                      OLED_WrCmd(0xb0+y);
+ 145   2                      OLED_WrCmd(0x01);
+ 146   2                      OLED_WrCmd(0x10);
+ 147   2                      for(x=0;x<X_WIDTH;x++)
+ 148   2                      OLED_WrDat(bmp_dat);
+ 149   2              }
+ 150   1      }
+ 151          /*********************OLED复位************************************/
+ 152          void OLED_CLS(void)
+ 153          {
+ 154   1              unsigned char y,x;
+ 155   1              for(y=0;y<8;y++)
+ 156   1              {
+ 157   2                      OLED_WrCmd(0xb0+y);
+ 158   2                      OLED_WrCmd(0x01);
+ 159   2                      OLED_WrCmd(0x10);
+ 160   2                      for(x=0;x<X_WIDTH;x++)
+ 161   2                      OLED_WrDat(0);
+ 162   2              }
+ 163   1      }
+ 164          /*********************OLED初始化************************************/
+ 165          void OLED_Init(void)
+ 166          {
+ 167   1              delay(500);//初始化之前的延时很重要！
+ 168   1              OLED_WrCmd(0xae);//--turn off oled panel
+ 169   1              OLED_WrCmd(0x00);//---set low column address
+ 170   1              OLED_WrCmd(0x10);//---set high column address
+ 171   1              OLED_WrCmd(0x40);//--set start line address  Set Mapping RAM Display Start Line (0x00~0x3F)
+ 172   1              OLED_WrCmd(0x81);//--set contrast control register
+ 173   1              OLED_WrCmd(Brightness); // Set SEG Output Current Brightness
+ 174   1              OLED_WrCmd(0xa1);//--Set SEG/Column Mapping     0xa0左右反置 0xa1正常
+C51 COMPILER V9.60.7.0   I2C                                                               09/19/2023 11:09:24 PAGE 4   
+
+ 175   1              OLED_WrCmd(0xc8);//Set COM/Row Scan Direction   0xc0上下反置 0xc8正常
+ 176   1              OLED_WrCmd(0xa6);//--set normal display
+ 177   1              OLED_WrCmd(0xa8);//--set multiplex ratio(1 to 64)
+ 178   1              OLED_WrCmd(0x3f);//--1/64 duty
+ 179   1              OLED_WrCmd(0xd3);//-set display offset  Shift Mapping RAM Counter (0x00~0x3F)
+ 180   1              OLED_WrCmd(0x00);//-not offset
+ 181   1              OLED_WrCmd(0xd5);//--set display clock divide ratio/oscillator frequency
+ 182   1              OLED_WrCmd(0x80);//--set divide ratio, Set Clock as 100 Frames/Sec
+ 183   1              OLED_WrCmd(0xd9);//--set pre-charge period
+ 184   1              OLED_WrCmd(0xf1);//Set Pre-Charge as 15 Clocks & Discharge as 1 Clock
+ 185   1              OLED_WrCmd(0xda);//--set com pins hardware configuration
+ 186   1              OLED_WrCmd(0x12);
+ 187   1              OLED_WrCmd(0xdb);//--set vcomh
+ 188   1              OLED_WrCmd(0x40);//Set VCOM Deselect Level
+ 189   1              OLED_WrCmd(0x20);//-Set Page Addressing Mode (0x00/0x01/0x02)
+ 190   1              OLED_WrCmd(0x02);//
+ 191   1              OLED_WrCmd(0x8d);//--set Charge Pump enable/disable
+ 192   1              OLED_WrCmd(0x14);//--set(0x10) disable
+ 193   1              OLED_WrCmd(0xa4);// Disable Entire Display On (0xa4/0xa5)
+ 194   1              OLED_WrCmd(0xa6);// Disable Inverse Display On (0xa6/a7) 
+ 195   1              OLED_WrCmd(0xaf);//--turn on oled panel
+ 196   1              OLED_Fill(0x00); //初始清屏
+ 197   1              OLED_Set_Pos(0,0);
+ 198   1      } 
+ 199          /***************功能描述：显示6*8一组标准ASCII字符串      显示的坐标（x,y），y为页范�
+             -�0～7****************/
+ 200          void OLED_P6x8Str(unsigned char x, y,unsigned char ch[])
+ 201          {
+ 202   1              unsigned char c=0,i=0,j=0;
+ 203   1              while (ch[j]!='\0')
+ 204   1              {
+ 205   2                      c =ch[j]-32;
+ 206   2                      if(x>126){x=0;y++;}
+ 207   2                      OLED_Set_Pos(x,y);
+ 208   2                      for(i=0;i<6;i++)
+ 209   2                      OLED_WrDat(F6x8[c][i]);
+ 210   2                      x+=6;
+ 211   2                      j++;
+ 212   2              }
+ 213   1      }
+ 214          /*******************功能描述：显示8*16一组标准ASCII字符串  显示的坐标（x,y），y为�
+             -�范围0～7****************/
+ 215          void OLED_P8x16Str(unsigned char x, y,unsigned char ch[])
+ 216          {
+ 217   1              unsigned char c=0,i=0,j=0;
+ 218   1              while (ch[j]!='\0')
+ 219   1              {
+ 220   2                      c =ch[j]-32;
+ 221   2                      if(x>120){x=0;y++;}
+ 222   2                      OLED_Set_Pos(x,y);
+ 223   2                      for(i=0;i<8;i++)
+ 224   2                      OLED_WrDat(F8X16[c*16+i]);
+ 225   2                      OLED_Set_Pos(x,y+1);
+ 226   2                      for(i=0;i<8;i++)
+ 227   2                      OLED_WrDat(F8X16[c*16+i+8]);
+ 228   2                      x+=8;
+ 229   2                      j++;
+ 230   2              }
+ 231   1      }
+ 232          /*****************功能描述：显示16*16点阵  显示的坐标（x,y），y为页范围0～7*********
+             -*******************/
+ 233          void OLED_P16x16Ch(unsigned char x, y, N)
+C51 COMPILER V9.60.7.0   I2C                                                               09/19/2023 11:09:24 PAGE 5   
+
+ 234          {
+ 235   1              unsigned char wm=0;
+ 236   1              unsigned int adder=32*N;
+ 237   1              OLED_Set_Pos(x , y);
+ 238   1              for(wm = 0;wm < 16;wm++)
+ 239   1              {
+ 240   2                      OLED_WrDat(F16x16[adder]);
+ 241   2                      adder += 1;
+ 242   2              }
+ 243   1              OLED_Set_Pos(x,y + 1);
+ 244   1              for(wm = 0;wm < 16;wm++)
+ 245   1              {
+ 246   2                      OLED_WrDat(F16x16[adder]);
+ 247   2                      adder += 1;
+ 248   2              }               
+ 249   1      }
+ 250          /***********功能描述：显示显示BMP图片128×64起始点坐标(x,y),x的范围0～127，y为页的
+             -范围0～7*****************/
+ 251          void Draw_BMP(unsigned char x0, y0,x1, y1,unsigned char BMP[])
+ 252          {
+ 253   1              unsigned int j=0;
+ 254   1              unsigned char x,y;
+ 255   1      
+ 256   1        if(y1%8==0) y=y1/8;      
+ 257   1        else y=y1/8+1;
+ 258   1              for(y=y0;y<y1;y++)
+ 259   1              {
+ 260   2                      OLED_Set_Pos(x0,y);
+ 261   2          for(x=x0;x<x1;x++)
+ 262   2                  {      
+ 263   3                      OLED_WrDat(BMP[j++]);
+ 264   3                  }
+ 265   2              }
+ 266   1      }
+ 267          
+ 268          
+ 269          
+ 270          
+ 271          /************************************************************************************
+ 272          *  Copyright (c), 2013, HelTec Automatic Technology co.,LTD.
+ 273          *            All rights reserved.
+ 274          *
+ 275          * Http:    www.heltec.cn
+ 276          * Email:   cn.heltec@gmail.com
+ 277          * WebShop: heltec.taobao.com
+ 278          *
+ 279          * File name: OLED12864.c
+ 280          * Project  : OLED
+ 281          * Processor: STC89C52
+ 282          * Compiler : Keil C51 Compiler
+ 283          * 
+ 284          * Author : 小林
+ 285          * Version: 1.00
+ 286          * Date   : 2013.8.8
+ 287          * Email  : hello14blog@gmail.com
+ 288          * Modification: none
+ 289          * 
+ 290          * Description: 128*64点整OLED模块功能演示程序的主函数，仅适用heltec.taobao.com所售产�
+             -��
+ 291          *
+ 292          * Others: none;
+ 293          *
+C51 COMPILER V9.60.7.0   I2C                                                               09/19/2023 11:09:24 PAGE 6   
+
+ 294          * Function List:
+ 295          *
+ 296          * 1. void delay(unsigned int z) -- 主函数中用于调整显示效果的延时函数,STC89C52 12MHZ z=1�
+             -��大约延时1ms,其他频率需要自己计算
+ 297          * 2. void main(void) -- 主函数
+ 298          *
+ 299          * History: none;
+ 300          *注意说明：CS脚需要接地
+ 301          *************************************************************************************/
+ 302          
+ 303          #include "intrins.h"
+ 304          
+ 305          void main(void)
+ 306          {
+ 307   1              unsigned char i;
+ 308   1      
+ 309   1              OLED_Init(); //OLED初始化
+ 310   1              while(1)
+ 311   1              {
+ 312   2      //              OLED_Fill(0xff); //屏全亮
+ 313   2      //              delay(2000);
+ 314   2      //              OLED_Fill(0x00); //屏全灭
+ 315   2      //              delay(200);
+ 316   2                      OLED_P16x16Ch(24,0,1);
+ 317   2                      OLED_P16x16Ch(40,0,2);
+ 318   2                      OLED_P16x16Ch(57,0,3);
+ 319   2                      OLED_P16x16Ch(74,0,4);
+ 320   2                      OLED_P16x16Ch(91,0,5);
+ 321   2                      for(i=0; i<8; i++)//通过点整显示汉字 -- i表示字表数组的位置
+ 322   2                      {
+ 323   3      //                      OLED_P16x16Ch(i*16,0,i);
+ 324   3                              OLED_P16x16Ch(i*16,2,i+8);
+ 325   3                              OLED_P16x16Ch(i*16,4,i+16);
+ 326   3                              OLED_P16x16Ch(i*16,6,i+24);
+ 327   3                      }
+ 328   2                      delay(4000);
+ 329   2                      OLED_CLS();//清屏
+ 330   2      
+ 331   2                      OLED_P8x16Str(0,0,"HelTec");//第一行 -- 8x16的显示单元显示ASCII码
+ 332   2                      OLED_P8x16Str(0,2,"OLED Display");
+ 333   2                      OLED_P8x16Str(0,4,"www.heltec.cn");
+ 334   2                      OLED_P6x8Str(0,6,"cn.heltec@gmail.com");
+ 335   2                      OLED_P6x8Str(0,7,"heltec.taobao.com");
+ 336   2                      delay(4000);
+ 337   2                      OLED_CLS();
+ 338   2      
+ 339   2                      Draw_BMP(0,0,128,8,BMP1);  //图片显示(图片显示慎用，生成的字表较大，会占用较多�
+             -�间，FLASH空间8K以下慎用)
+ 340   2                      delay(8000);
+ 341   2                      Draw_BMP(0,0,128,8,BMP2);
+ 342   2                      delay(8000);
+ 343   2              }
+ 344   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =   1099    ----
+   CONSTANT SIZE    =   5216    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----      32
+   IDATA SIZE       =   ----    ----
+C51 COMPILER V9.60.7.0   I2C                                                               09/19/2023 11:09:24 PAGE 7   
+
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

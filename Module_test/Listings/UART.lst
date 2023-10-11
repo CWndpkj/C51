@@ -1,0 +1,63 @@
+C51 COMPILER V9.60.7.0   UART                                                              09/07/2023 16:31:05 PAGE 1   
+
+
+C51 COMPILER V9.60.7.0, COMPILATION OF MODULE UART
+OBJECT MODULE PLACED IN .\Objects\UART.obj
+COMPILER INVOKED BY: D:\install\Keil\C51\BIN\C51.EXE UART.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.\Listings
+                    -\UART.lst) TABS(2) OBJECT(.\Objects\UART.obj)
+
+line level    source
+
+   1          #include "UART.h"
+   2          #include <REGX52.H>
+   3          
+   4          void(*f_ptr)(unsigned char byte);
+   5          
+   6          void UART_Init(void(*interrupt_call_back)(unsigned char byte))  //9600bps@11.0592MHz
+   7          
+   8          {
+   9   1        f_ptr=interrupt_call_back;
+  10   1        //配置串口寄存器
+  11   1        
+  12   1        PCON &= 0x7F;   //波特率不倍速
+  13   1        SCON = 0x50;    //8位数据,可变波特率
+  14   1        //配置定时器
+  15   1        TMOD &= 0x0F;   //清除定时器1模式位
+  16   1        TMOD |= 0x20;   //设定定时器1为8位自动重装方式
+  17   1        TL1 = 0xFD;     //设置定时初始值
+  18   1        TH1 = 0xFD;     //设置定时重载值
+  19   1        ET1 = 0;    //禁止定时器1中断
+  20   1        TR1 = 1;    //启动定时器1
+  21   1        
+  22   1        ES=1;//开启UART中断
+  23   1        EA=1;//开启总中断
+  24   1      }
+  25          
+  26          void UART_Send_Byte(unsigned char byte)
+  27          {
+  28   1        SBUF=byte;
+  29   1        while(TI==0);
+  30   1        TI=0;//软件复位
+  31   1      }
+  32          
+  33          void UART_Recv_Routine() interrupt 4
+  34          {
+  35   1        if(RI==1){//判断中断是否为接收中断
+  36   2          (*f_ptr)(SBUF);
+  37   2          RI=0;
+  38   2        }
+  39   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    113    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =      3    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)
