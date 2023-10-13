@@ -1,9 +1,0 @@
-".\Objects\delay.obj",
-".\Objects\LCD1602.obj",
-".\Objects\main.obj",
-".\Objects\8bit_SMG.obj",
-".\Objects\IRC_Test.obj" 
-TO ".\Objects\module_test" 
-PRINT(".\Listings\module_test.m51") RAMSIZE(256) 
-DISABLEWARNING (16) 
-CODE( 0X0000-0X1FFF )
