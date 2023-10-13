@@ -1,10 +1,23 @@
+/**
+ * @file UART.c
+ * @author pkjinfinity (pkjinfinity@outlook.com)
+ * @brief  UART 通信驱动模块
+ * @version 0.1
+ * @date 2023-10-13
+ * 
+ * @copyright Copyright (c) 2023
+ * 
+ */
 #include "UART.h"
 #include <REGX52.H>
 
 void(*f_ptr)(unsigned char byte);
 
+/**
+ * @brief UART 初始化
+ * @param interrupt_call_back 串口接收到数据后的处理回调函数
+ */
 void UART_Init(void(*interrupt_call_back)(unsigned char byte))	//9600bps@11.0592MHz
-
 {
 	f_ptr=interrupt_call_back;
 	//配置串口寄存器

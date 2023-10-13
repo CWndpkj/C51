@@ -1,5 +1,5 @@
-#ifndef _24C02_H_
-#define _24C02_H_
+#ifndef _AT24C02_H_
+#define _AT24C02_H_
 
 /**
  * @brief AT24c02写byte

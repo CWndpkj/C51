@@ -1,3 +1,14 @@
+/**
+ * @file PWM.c
+ * @author pkjinfinity (pkjinfinity@outlook.com)
+ * @brief  PWM生成模块,可以设置占空比,实现DA转换
+ * @version 0.1
+ * @date 2023-10-13
+ * 
+ * @copyright Copyright (c) 2023
+ * 
+ */
+
 #include <REGX52.H>
 #include "LCD1602.h"
 //*************************
@@ -8,6 +19,12 @@
 unsigned int m_ratio;
 unsigned char counter;
 
+
+/**
+ * @brief PWM初始化函数
+ * @param ratio 设置占空比,分辨率1/256
+ * 			    占空比=ratio/256
+ */
 void PWM_Init(unsigned int ratio)
 {
 	m_ratio=ratio;

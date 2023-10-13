@@ -1,6 +1,7 @@
 #include <REGX52.H>
 #include <LCD1602.h>
 //引脚配置：
+//TODO:更改为适当的IO
 sbit LCD_RS=P2^6;
 sbit LCD_RW=P2^5;
 sbit LCD_EN=P2^7;

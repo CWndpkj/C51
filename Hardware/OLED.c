@@ -1,3 +1,13 @@
+/**
+ * @file OLED.c
+ * @author pkjinfinity (pkjinfinity@outlook.com)
+ * @brief  使用模拟IIC实现的0.96寸OLED显示屏驱动函数
+ * @version 0.1
+ * @date 2023-10-13
+ * 
+ * @copyright Copyright (c) 2023
+ * 
+ */
 #include "OLED_Font.h"
 #include <REGX52.H>
 #include "IIC.h"

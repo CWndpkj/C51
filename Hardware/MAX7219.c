@@ -1,3 +1,14 @@
+/**
+ * @file MAX7219.c
+ * @author pkjinfinity (pkjinfinity@outlook.com)
+ * @brief  使用MAX7219驱动的8x8LED的驱动函数,使用了模拟SPI
+ * @version 0.1
+ * @date 2023-10-13
+ * 
+ * @copyright Copyright (c) 2023
+ * 
+ */
+
 #include <REGX52.H>
 #include "MAX7219.h"
 #include "SPI.h"
@@ -11,14 +22,16 @@
 #define Digit_5     0x06
 #define Digit_6     0x07
 #define Digit_7     0x08
-#define DecodeMode  0x09
-#define Intensity   0x0A
-#define ScanLimit   0x0B
-#define ShutDown    0x0C
-#define DisplayTest 0x0F
+#define DecodeMode  0x09 //解码方式
+#define Intensity   0x0A //亮度
+#define ScanLimit   0x0B //扫描的位数
+#define ShutDown    0x0C //电源控制
+#define DisplayTest 0x0F //测试模式,灯为全亮
 
 
-
+/**
+ * @brief MAX7219初始化函数
+ */
 void MAX7219_Init()
 {
     unsigned char i;
@@ -39,6 +52,10 @@ void MAX7219_Init()
     }
 }
 
+/**
+ * @brief 设置亮度
+ * @param Brightness  一个Byte的亮度 
+ */
 void MAX7219_SetBrightness(unsigned char Brightness)
 {
     SPI_Start();
@@ -47,6 +64,11 @@ void MAX7219_SetBrightness(unsigned char Brightness)
     SPI_Stop();
 }
 
+/**
+ * @brief 设置显示的数据
+ * @param Digit 段选,设置的是哪一列
+ * @param Data_to_Show 设置该列显示的数据
+ */
 void MAX7219_SetData(unsigned char Digit, unsigned char Data_to_Show)
 {
     SPI_Start();
@@ -80,6 +102,9 @@ void MAX7219_SetData(unsigned char Digit, unsigned char Data_to_Show)
     SPI_Stop();
 }
 
+/**
+ * @brief 开始显示
+ */
 void MAX7219_Show()
 {
     SPI_Start();
@@ -88,6 +113,9 @@ void MAX7219_Show()
     SPI_Stop();
 }
 
+/**
+ * @brief 启动测试模式
+ */
 void MAX7219_TestMode()
 {
     SPI_Start();
